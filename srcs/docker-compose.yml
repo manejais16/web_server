@@ -1,25 +1,44 @@
+#TODO:remove remote port bind
 #Volume for mariaDB
-volumes:
-  - type: bind
-    source: ./requirements/mariadb
-    target: /mariadb
+services:
+  mariadb:
+    image: mariadb_main
+    hostname: mariadb
+    container_name: mariadb
+    volumes:
+      - mariadb_vol:/mariadb
+      - ${HOME}/data/secrets/db_password.txt:/mariadb/secrets/db_password.txt
+      - ${HOME}/data/secrets/db_root_password.txt:/mariadb/secrets/db_root_password.txt
+    ports:
+      - '3306:3306'
+    networks:
+      - wordpress 
+    build:
+      dockerfile: ./requirements/mariadb/Dockerfile
 
 #Volume for WordPress+PHP
-volumes:
-  - type: bind
-    source: ./requirements/wordpress
-    target: /wordpress
-
+#volumes:
+#  - type: bind
+#    source: ./requirements/wordpress
+#    target: /wordpress
+#
 #Volume for NGINX
-volumes:
-  - type: bind
-    source: ./requirements/wordpress
-    target: /www
+#volumes:
+#  - type: bind
+#    source: ./requirements/wordpress
+#    target: /www
+
 
 networks:
-  frontend:
+  wordpress:
     driver: bridge
-    driver_opts:
-      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
   backend:
     driver: bridge
+
+volumes:
+  mariadb_vol:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${HOME}/data/srcs/requirements/mariadb
+      o: bind
