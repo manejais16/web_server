@@ -1,0 +1,25 @@
+#Volume for mariaDB
+volumes:
+  - type: bind
+    source: ./requirements/mariadb
+    target: /mariadb
+
+#Volume for WordPress+PHP
+volumes:
+  - type: bind
+    source: ./requirements/wordpress
+    target: /wordpress
+
+#Volume for NGINX
+volumes:
+  - type: bind
+    source: ./requirements/wordpress
+    target: /www
+
+networks:
+  frontend:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
+  backend:
+    driver: bridge
