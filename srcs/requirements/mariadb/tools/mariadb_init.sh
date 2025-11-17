@@ -45,6 +45,9 @@ mysql -uroot << EOF
 CREATE USER '${MYSQL_USER}'@'${wp_hostname}' IDENTIFIED BY '${db_password}';
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${db_root_password}';
 CREATE DATABASE wordpress;
+DROP DATABASE test;
+DROP USER ''@'localhost';
+DROP USER ''@'mariadb';
 GRANT ALL PRIVILEGES ON wordpress.* TO '${MYSQL_USER}'@'${wp_hostname}';
 FLUSH PRIVILEGES;
 EOF
