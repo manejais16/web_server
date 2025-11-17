@@ -19,7 +19,12 @@ echo "Start of init script"
 
 if [ ! -f /mariadb/my.cnf ]
 then
-echo $'[mariadbd]\n bind-address = 0.0.0.0\ndatadir=/mariadb/database\nlog-basename=mariadb\nsocket=/mariadb/database/mysqld.sock\npid-file=/mariadb/database/mysqld.pid'> ${MARIADB_HOME}/my.cnf
+echo $'[mariadbd]\nbind-address = 0.0.0.0
+datadir=/mariadb/database\nlog-basename=mariadb
+socket=/mariadb/database/mysqld.sock
+pid-file=/mariadb/database/mysqld.pid'> ${MARIADB_HOME}/my.cnf
+echo $'[mysql]\nsocket=/mariadb/database/mysqld.sock
+[mysqladmin]\nsocket=/mariadb/database/mysqld.sock' > ~/.my.cnf
 fi
 
 if [ ! -d /mariadb/database ]
@@ -32,11 +37,11 @@ mysql_install_db --datadir=/mariadb/database --user=mysql
 echo "The mysql_has_been installed in default directory"
 mariadbd --user=root &
 echo "Startig mariadb for configuration"
-while ! mysqladmin ping --socket=/mariadb/database/mysqld.sock --silent
+while ! mysqladmin ping --silent
 do
   sleep 1
 done
-mysql -uroot --socket=/mariadb/database/mysqld.sock << EOF
+mysql -uroot << EOF
 CREATE USER '${MYSQL_USER}'@'${wp_hostname}' IDENTIFIED BY '${db_password}';
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${db_root_password}';
 CREATE DATABASE wordpress;
@@ -48,7 +53,7 @@ passwd root << EOF
 ${db_root_password}
 ${db_root_password}
 EOF
-mysqladmin --socket=/mariadb/database/mysqld.sock --user=root -p${db_root_password} shutdown
+mysqladmin --user=root -p${db_root_password} shutdown
 echo "This is after stop"
 /etc/init.d/mysql status
 while [ $? -eq 0 ]
@@ -59,4 +64,4 @@ echo "End of initalization"
 fi
 
 echo "running the daemon!!!!!!!"
-exec mariadbd  --socket=/mariadb/database/mysqld.sock --user=mysql
+exec mariadbd --user=mysql

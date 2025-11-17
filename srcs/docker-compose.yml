@@ -4,7 +4,7 @@ services:
   mariadb:
     image: mariadb_main
     hostname: mariadb
-    container_name: mariadb
+    container_name: mariadb_inc
     volumes:
       - mariadb_vol:/mariadb
       - ${HOME}/data/secrets/db_password.txt:/mariadb/secrets/db_password.txt
