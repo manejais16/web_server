@@ -58,8 +58,7 @@ ${db_root_password}
 EOF
 mysqladmin --user=root -p${db_root_password} shutdown
 echo "This is after stop"
-/etc/init.d/mysql status
-while [ $? -eq 0 ]
+while mysqladmin ping --silent
 do
   sleep 1
 done
