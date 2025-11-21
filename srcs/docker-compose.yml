@@ -15,6 +15,21 @@ services:
       - wordpress 
     build:
       dockerfile: ./requirements/mariadb/Dockerfile
+#  wordpress:
+#    image: wordpress_main
+#    hostname: wordpress
+#    container_name: wordpress_inc
+#    volumes:
+#      - wordpress_vol:/wordpress
+#      - ${HOME}/data/secrets/wordpress_password.txt:/wordpress/secrets/wordpress_password.txt
+#      - ${HOME}/data/secrets/db_password.txt:/mariadb/secrets/db_password.txt
+#    port:
+#      - '9000':'9000'
+#    networks:
+#      - wordpress
+#      - nginx
+#    build:
+#      dockerfile: ./requirements/wordpress/Dockerfile
 
 #Volume for WordPress+PHP
 #volumes:
@@ -32,7 +47,7 @@ services:
 networks:
   wordpress:
     driver: bridge
-  backend:
+  nginx:
     driver: bridge
 
 volumes:
@@ -41,4 +56,10 @@ volumes:
     driver_opts:
       type: none
       device: ${HOME}/data/srcs/requirements/mariadb
+      o: bind
+  wordpress_vol:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${HOME}/data/srcs/requirements/wordpress
       o: bind
