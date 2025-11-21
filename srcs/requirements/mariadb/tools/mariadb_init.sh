@@ -31,7 +31,7 @@ if [ ! -d /mariadb/database ]
 then
 echo "Creating new database"
 mkdir /mariadb/database
-touch mysqld.pid
+#touch mysqld.pid
 chown -R mysql:mysql /mariadb/database
 mysql_install_db --datadir=/mariadb/database --user=mysql
 echo "The mysql_has_been installed in default directory"
