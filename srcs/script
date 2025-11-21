@@ -1,0 +1,2 @@
+rm -rf ./requirements/mariadb/my.cnf ./requirements/mariadb/mysqld.pid ./requirements/mariadb/database
+docker compose up --build
