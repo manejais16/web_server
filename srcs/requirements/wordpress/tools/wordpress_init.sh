@@ -5,13 +5,9 @@
 #TODO: Add different user in db so it is more descriptive
 #TODO: Add user injection to the wordpress & change the user to wordpress!!!
 DB_hostname='mariadb'
-DB_user='mysql'
-protocol='http://'
 #TODO: Add the env vars through docker compose for these settings!
-export DOMAIN='localhost'
-wordpress_admin_username='admin'
+DOMAIN='localhost'
 wordpress_tool_dir='/content/tools/'
-export PORT='9000'
 mariadb_wordpress_user_password=$(cat /wordpress/secrets/db_password.txt)
 wordpress_admin_password=$(cat /wordpress/secrets/wordpress_admin_password.txt)
 export WORDPRESS_HOME='/wordpress'
@@ -24,7 +20,7 @@ cat > /wordpress/wp-config.php << EOF
 <?php
 define ('WP_CONTENT_DIR', '/wordpress/wp-content');
 define( 'DB_NAME', 'wordpress' );
-define( 'DB_USER', '${DB_user}' );
+define( 'DB_USER', '${MYSQL_WORDPRESS_USER}' );
 define( 'DB_PASSWORD', '${mariadb_wordpress_user_password}');
 define( 'DB_HOST', '${DB_hostname}' );
 define( 'DB_CHARSET', 'utf8' );
@@ -38,7 +34,7 @@ define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
 define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
 define( 'NONCE_SALT',       'put your unique phrase here' );
 \$table_prefix = 'wp_';
-\$wp_home = '${protocol}' . '${DOMAIN}'  . ':' . '${PORT}';
+\$wp_home = '${WORDPRESS_INTERNAL_PROTOCOL}' . '${DOMAIN}'  . ':' . '${WORDPRESS_PORT}';
 define( 'WP_HOME', \$wp_home );
 define( 'WP_SITEURL', \$wp_home );
 if ( ! defined( 'ABSPATH' ) ) {
@@ -56,17 +52,18 @@ then
 	init_config_file
 fi
 
-while ! mysqladmin -h ${DB_hostname} ping &> /dev/null
+while ! mysqladmin -h ${DB_hostname} -uroot ping &> /dev/null
 do
 	sleep 1
+	echo "hello"
 done
 
 php ${wordpress_tool_dir}is_installed.php
 if [ $? == 0 ] 
 then
 	echo "Installing wordpress"
-	php ${wordpress_tool_dir}install_wordpress.php "The blog" "${wordpress_admin_username}" 'admin@admin.com' 0 "${wordpress_admin_password}" ''
-	php ${wordpress_tool_dir}is_installed.php	
+	php ${wordpress_tool_dir}install_wordpress.php "The blog" "${WORDPRESS_ADMIN_USER}" 'admin@admin.com' 0 "${wordpress_admin_password}" ''
+	php ${wordpress_tool_dir}is_installed.php
 	if [ $? == 0 ] 
 	then
 		echo "ERROR: Could not install wordpress. Check configuration inputs"
@@ -83,4 +80,4 @@ chmod -R 700 /wordpress/wp-content
 chown -R wordpress /wordpress
 
 #TODO: Think of a more elegant solution
-su -c 'php -S 0.0.0.0:${PORT}' wordpress
+su -c 'php -S 0.0.0.0:${WORDPRESS_PORT}' wordpress
