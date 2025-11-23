@@ -11,8 +11,8 @@ $language = $argv[6];
 
 
 #dependencies for wp_install
-require_once("../wp-config.php");
-require_once("../wp-admin/includes/upgrade.php");
+require_once("/wordpress/wp-config.php");
+require_once("/wordpress/wp-admin/includes/upgrade.php");
 
 $result = wp_install($blog_title, $user_name, $user_email, $is_public, '', $admin_password, $language);
 

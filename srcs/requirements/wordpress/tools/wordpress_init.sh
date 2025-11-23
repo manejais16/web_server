@@ -10,22 +10,23 @@ protocol='http://'
 #TODO: Add the env vars through docker compose for these settings!
 export DOMAIN='localhost'
 wordpress_admin_username='admin'
+wordpress_tool_dir='/content/tools/'
 export PORT='9000'
-mariadb_wordpress_user_password=$(cat ${HOME}/wordpress/secrets/db_password.txt)
-wordpress_admin_password=$(cat ${HOME}/wordpress/secrets/wordpress_admin_password.txt)
+mariadb_wordpress_user_password=$(cat /wordpress/secrets/db_password.txt)
+wordpress_admin_password=$(cat /wordpress/secrets/wordpress_admin_password.txt)
 export WORDPRESS_HOME='/wordpress'
 echo "Start of init script"
 
-#TODO: Change the name and host of the database
+#TODO: Change the name and host of the database also add port
 init_config_file() {
 	echo 'Initializing config file.'
-cat > ${HOME}/wordpress/wp-config.php << EOF
+cat > /wordpress/wp-config.php << EOF
 <?php
-define ('WP_CONTENT_DIR', '${HOME}/wordpress/wp-content');
+define ('WP_CONTENT_DIR', '/wordpress/wp-content');
 define( 'DB_NAME', 'wordpress' );
 define( 'DB_USER', '${DB_user}' );
 define( 'DB_PASSWORD', '${mariadb_wordpress_user_password}');
-define( 'DB_HOST', '127.0.0.1' );
+define( 'DB_HOST', '${DB_hostname}' );
 define( 'DB_CHARSET', 'utf8' );
 define( 'DB_COLLATE', '' );
 define( 'AUTH_KEY',         'put your unique phrase here' );
@@ -37,7 +38,7 @@ define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
 define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
 define( 'NONCE_SALT',       'put your unique phrase here' );
 \$table_prefix = 'wp_';
-\$wp_home = '${protocol}' . getenv('DOMAIN') . ':' . getenv('PORT');
+\$wp_home = '${protocol}' . '${DOMAIN}'  . ':' . '${PORT}';
 define( 'WP_HOME', \$wp_home );
 define( 'WP_SITEURL', \$wp_home );
 if ( ! defined( 'ABSPATH' ) ) {
@@ -48,25 +49,25 @@ EOF
 	echo "Config file initialized."	
 }
 
-#TODO: Change to better check if wp is installed
 #TODO: Inject the title, username, e-mail, etc through the envars.
-if [ ! -f "${HOME}/wordpress/wp-config.php" ]
+if [ ! -f "/wordpress/wp-config.php" ]
 then
 
 	init_config_file
 fi
 
-php ./is_installed.php
-is_installed=$?;
-echo $is_installed;
-if [ $is_installed == 0 ] 
+while ! mysqladmin -h ${DB_hostname} ping &> /dev/null
+do
+	sleep 1
+done
+
+php ${wordpress_tool_dir}is_installed.php
+if [ $? == 0 ] 
 then
 	echo "Installing wordpress"
-	php ./install_wordpress.php "The blog" "${wordpress_admin_username}" 'admin@admin.com' 0 "${wordpress_admin_password}" ''
-	php ./is_installed.php	
-	is_installed=$?;
-	echo $is_installed;
-	if [ $is_installed == 0 ] 
+	php ${wordpress_tool_dir}install_wordpress.php "The blog" "${wordpress_admin_username}" 'admin@admin.com' 0 "${wordpress_admin_password}" ''
+	php ${wordpress_tool_dir}is_installed.php	
+	if [ $? == 0 ] 
 	then
 		echo "ERROR: Could not install wordpress. Check configuration inputs"
 		exit -1
@@ -74,10 +75,12 @@ then
 		echo "Initialization successfull!"
 	fi
 fi
-cd ${HOME}/wordpress
+cd /wordpress
 
-chmod -R 600 ${HOME}/wordpress/secrets
-chown -R root ${HOME}/wordpress/secrets
+useradd -m wordpress
+chmod -R 500 /wordpress
+chmod -R 700 /wordpress/wp-content
+chown -R wordpress /wordpress
 
-#TODO: Change the user to not be root
-php -S ${DOMAIN}:${PORT}
+#TODO: Think of a more elegant solution
+su -c 'php -S 0.0.0.0:${PORT}' wordpress
