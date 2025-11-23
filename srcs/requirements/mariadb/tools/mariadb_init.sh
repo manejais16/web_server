@@ -8,11 +8,6 @@ db_password=$(cat /mariadb/secrets/db_password.txt)
 
 #TODO: change the hostname to more precise definition
 wp_hostname='%'
-MYSQL_USER='mysql'
-
-#TODO: remove when used for prod
-echo $db_root_password
-echo $db_password
 
 export MARIADB_HOME='/mariadb'
 echo "Start of init script"
@@ -42,13 +37,13 @@ do
   sleep 1
 done
 mysql -uroot << EOF
-CREATE USER '${MYSQL_USER}'@'${wp_hostname}' IDENTIFIED BY '${db_password}';
+CREATE USER '${MYSQL_WORDPRESS_USER}'@'${wp_hostname}' IDENTIFIED BY '${db_password}';
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${db_root_password}';
 CREATE DATABASE wordpress;
 DROP DATABASE test;
 DROP USER ''@'localhost';
 DROP USER ''@'mariadb';
-GRANT ALL PRIVILEGES ON wordpress.* TO '${MYSQL_USER}'@'${wp_hostname}';
+GRANT ALL PRIVILEGES ON wordpress.* TO '${MYSQL_WORDPRESS_USER}'@'${wp_hostname}';
 FLUSH PRIVILEGES;
 EOF
 echo "The return value was after changing passwords " $?

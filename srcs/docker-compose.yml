@@ -9,27 +9,31 @@ services:
       - mariadb_vol:/mariadb
       - ${HOME}/data/secrets/db_password.txt:/mariadb/secrets/db_password.txt
       - ${HOME}/data/secrets/db_root_password.txt:/mariadb/secrets/db_root_password.txt
-    ports:
-      - '3306:3306'
+    #ports:
+    #  - '3306:3306'
     networks:
       - wordpress 
     build:
       dockerfile: ./requirements/mariadb/Dockerfile
-#  wordpress:
-#    image: wordpress_main
-#    hostname: wordpress
-#    container_name: wordpress_inc
-#    volumes:
-#      - wordpress_vol:/wordpress
-#      - ${HOME}/data/secrets/wordpress_password.txt:/wordpress/secrets/wordpress_password.txt
-#      - ${HOME}/data/secrets/db_password.txt:/mariadb/secrets/db_password.txt
-#    port:
-#      - '9000':'9000'
-#    networks:
-#      - wordpress
-#      - nginx
-#    build:
-#      dockerfile: ./requirements/wordpress/Dockerfile
+    env_file: ".env"
+  wordpress:
+    image: wordpress_main
+    container_name: wordpress_inc
+    hostname: wordpress
+    volumes:
+      - wordpress_vol:/content
+      - ${HOME}/data/secrets/wordpress_admin_password.txt:/wordpress/secrets/wordpress_admin_password.txt
+      - ${HOME}/data/secrets/db_password.txt:/wordpress/secrets/db_password.txt
+    ports:
+      - '9000:9000'
+    networks:
+      - wordpress
+      - nginx
+    depends_on:
+      - mariadb
+    build:
+      dockerfile: ./requirements/wordpress/Dockerfile
+    env_file: ".env"
 
 #Volume for WordPress+PHP
 #volumes:
