@@ -4,7 +4,7 @@ WORKDIR /wordpress
 
 #TODO: REMOVE more packages that are not needed from debian
 #For prod the instalation should not happen!! The wordpress version should be set in stone or checked with hash.
-RUN apt update && apt install tar wget -y
+RUN apt update && apt install tar wget php -y
 RUN wget https://wordpress.org/wordpress-6.8.3.tar.gz && tar -xzvf latest.tar.gz && mv /wordpress/wordpress/* /wordpress && rm -d wordpress
 RUN apt remove wget
 
