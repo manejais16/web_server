@@ -7,6 +7,10 @@
 DB_hostname='mariadb'
 DB_user='mysql'
 protocol='http://'
+#TODO: Add the env vars through docker compose for these settings!
+export DOMAIN='localhost'
+wordpress_admin_username='admin'
+export PORT='9000'
 mariadb_wordpress_user_password=$(cat ${HOME}/wordpress/secrets/db_password.txt)
 wordpress_admin_password=$(cat ${HOME}/wordpress/secrets/wordpress_admin_password.txt)
 export WORDPRESS_HOME='/wordpress'
@@ -58,7 +62,7 @@ echo $is_installed;
 if [ $is_installed == 0 ] 
 then
 	echo "Installing wordpress"
-	php ./install_wordpress.php "The blog" 'admin' 'admin@admin.com' 0 "${wordpress_admin_password}" ''
+	php ./install_wordpress.php "The blog" "${wordpress_admin_username}" 'admin@admin.com' 0 "${wordpress_admin_password}" ''
 	php ./is_installed.php	
 	is_installed=$?;
 	echo $is_installed;

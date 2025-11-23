@@ -17,4 +17,5 @@ require_once("../wp-admin/includes/upgrade.php");
 $result = wp_install($blog_title, $user_name, $user_email, $is_public, '', $admin_password, $language);
 
 echo "WP installed!\n";
+exit (0);
 ?>
