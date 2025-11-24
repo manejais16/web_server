@@ -1,6 +1,6 @@
 #!/bin/bash
 #Desc: The script initializes the wordpress 
-#!!!The DOMAIN and PORT env vars should be set!!!
+#Warninig: ONLY RUN THIS SCRIPT WITH NON ROOT wordpress user
 
 #TODO: Add different user in db so it is more descriptive
 #TODO: Add user injection to the wordpress & change the user to wordpress!!!
@@ -55,7 +55,6 @@ fi
 while ! mysqladmin -h ${DB_hostname} -uroot ping &> /dev/null
 do
 	sleep 1
-	echo "hello"
 done
 
 php ${wordpress_tool_dir}is_installed.php
@@ -74,10 +73,8 @@ then
 fi
 cd /wordpress
 
-useradd -m wordpress
 chmod -R 500 /wordpress
 chmod -R 700 /wordpress/wp-content
 chown -R wordpress /wordpress
 
-#TODO: Think of a more elegant solution
-su -c 'php -S 0.0.0.0:${WORDPRESS_PORT}' wordpress
+exec php -S 0.0.0.0:${WORDPRESS_PORT}

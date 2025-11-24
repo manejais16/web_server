@@ -8,8 +8,10 @@ RUN apt update && apt install tar wget php php-mysql mariadb-client -y
 RUN wget https://wordpress.org/wordpress-6.8.3.tar.gz && tar -xzvf wordpress-6.8.3.tar.gz && mv /wordpress/wordpress/* /wordpress && rm -d /wordpress/wordpress && rm -f wordpress-6.8.3.tar.gz
 RUN apt remove wget -y
 
-RUN mkdir /wordpress/secrets
 
 EXPOSE 9000
 
+RUN useradd -ms /bin/bash wordpress
+RUN mkdir /wordpress/secrets && chown -R wordpress /wordpress
+USER wordpress
 CMD ["/content/tools/wordpress_init.sh"]
